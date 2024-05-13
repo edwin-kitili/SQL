@@ -1,0 +1,6 @@
+select * from wendy;
+
+UPDATE WENDY
+SET  SAL=10000, HEIGHT= 2
+WHERE ID_NUMBER=34019490;
+

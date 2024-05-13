@@ -1,0 +1,85 @@
+1. SQL Querry
+     select * distict frm table_name;
+     you can enter parameter at column level
+2. Report building
+     wizard
+      Data model
+check parameters on left panel
+      check data type and chage to the correct data types
+3.Save as rdf file
+      create a folder and store the rdf file in it.
+4. CREATE A CONCURRENT PROGRAM
+      sys admin> concurrent> program> executable
+      application dev> concurrent> program> executable
+	  Use the rdf name as the executable and short name; application is 'custom development'
+	  Execution method is the rdf file because it's an oracle report
+	  Execution file name is the same as the short name or executable
+5SAVE THE DATA-EXECUTABLE
+5. CREATE THE PROGRAM
+       give a user friendly name
+       program name,short name
+FILE OUTPUT- CHANGE TO XML
+      change the style-A4	
+CONCURENT PROGRAM PARAMETERS
+SAVE AND COPY THE NAME OF THE PROGRAM
+CREATE VALUE SETS FOR PARAMETERS
+      application dev>application>validation>set
+      value set name,maximum size (DESC Table),formart type
+      table>table name >value(column for value set)
+SAVE
+      Copy the value set name to your note pad
+6.CONCURRENT PROGRAM PARAMETERS- report name-querry the report
+      parameter sequence
+      TOKEN(applies when creating rtf file). Enter the parameter name from the report builder
+SAVE
+ANOTHER PARAMETER INCASE THERE ARE SEVERAL
+      FND_STANDARD_DATE for date.
+Save
+YOU HAVE CREATED THE PROGRAM
+7. ASSIGN THE PROGRAM TO A RESPONSIBILITY
+     switch responsibility
+     system administrator>security>responsibility>define
+	 querry responsibility
+     REQUEST GROUP eg hrms	 
+SAVE THE REQUEST GROUP NAME IN NOTE PAD - INCASE NOT ASSIGNED
+     responsibility> request request group and querry
+	 insert name= report name and save
+	 assign to user incase the respnsibilty isnt assigned to user
+7. RUN THE PROGRAM
+    view>request>submit new request>
+	name=report name
+	submit request and check status and phase
+	view output and save the XML file
+8. UPLOAD DATA TO SERVER INCASE STATUS IS ERROR-DEBUG
+     application>register- used to get base path
+     system admin>concurrent>program>define 
+	 f11
+	 pick application name
+	 in the server, we register using application short names
+	 root
+	 navigate to application top
+	 --anything uploaded to the server should have backup
+	 front end application name querr>
+	 applcation dev>application>register
+9. Create a template- BI PUBLISHER
+     Same tag
+10 INSTANCE- XML PUBLISHER
+      home>template-
+      Data defination and link it with the template-short name
+	  short, application, end date which is optional
+	  
+	  in the *code, make sure you space before inserting any values
+	  -short_name
+11. CREATE A TEMPLATE
+      short name, application
+	  use the same naming covention
+	  *type you choose RTF
+	  
+	  RDF>SERVER>XML>RTF
+	 
+	 
+     
+
+	  
+ 
+    

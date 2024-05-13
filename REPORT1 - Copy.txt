@@ -1,0 +1,21 @@
+SELECT   gsb.name                      c_company,
+        --fsp.inventory_organization_id c_organization_id
+        gsb.currency_code             base_currency_code,
+        gsb.chart_of_accounts_id      STRUCTURE_ACC,
+        mdv.structure_id              STRUCTURE_CAT,
+        mdv.category_set_id           c_category_set_id,
+        flo1.meaning                  c_yes,
+        flo2.meaning                  c_no
+        --psp.manual_po_num_type        manual_po_num_type
+FROM     gl_sets_of_books              gsb,
+        --financials_system_parameters  fsp
+        --po_system_parameters          psp
+        mtl_default_sets_view         mdv,
+        fnd_lookups                   flo1,
+        fnd_lookups                   flo2
+WHERE   /* gsb.set_of_books_id           = fsp.set_of_books_id
+AND   */   mdv.functional_area_id        = 2
+AND      flo1.lookup_type              = 'YES_NO'
+AND      flo1.lookup_code              = 'Y'
+AND      flo2.lookup_type              = 'YES_NO'
+AND      flo2.lookup_code              = 'N'

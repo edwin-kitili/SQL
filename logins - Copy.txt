@@ -1,0 +1,6 @@
+WINSCP
+applmgr / applmgr!24$
+/u01/oracle/VISION/apps/fs1/EBSapps/appl
+
+http://vision.emtech.com:8000/
+

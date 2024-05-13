@@ -1,0 +1,73 @@
+SELECT ph.po_header_id, ph.type_lookup_code, ph.segment1 Order_Number, ph.revision_num, ph.print_count,
+       ph.creation_date, ph.printed_date, ph.revised_date, ph.start_date,
+       ph.end_date, ph.note_to_vendor, hre.first_name, hre.last_name,
+       ph.agent_id, hre2.first_name, hre2.last_name, pha.agent_id,
+       NVL (ph.blanket_total_amount, ''), ph.cancel_flag,
+       ph.confirming_order_flag, ph.acceptance_required_flag,
+       ph.acceptance_due_date, decode(fcc.currency_code, 'KES','Kshs', fcc.currency_code) C_currency_Code,(select
+sum(zl.tax_amt_tax_curr)
+from zx_lines  zl
+where 1=1
+and ENTITY_CODE='PURCHASE_ORDER'
+and trx_id= ph.po_header_id
+--and trx_line_id=pla.PO_LINE_ID
+group by zl.TRX_CURRENCY_CODE) TAX_Amount, fcc.NAME, ph.rate,
+       ph.ship_via_lookup_code ship_via, plc1.displayed_field,
+       plc2.displayed_field, t.NAME, NVL (pvs.customer_num, vn.customer_num),
+       vn.segment1, vn.vendor_name, pvs.address_line1 C_ADDRESS_LINE1, pvs.address_line2 C_ADDRESS_LINE2,
+       pvs.address_line3 C_ADDRESS_LINE3, pvs.city C_CITY,
+       DECODE (pvs.state,
+               NULL, DECODE (pvs.province, NULL, pvs.county, pvs.province),
+               pvs.state
+              ),
+       pvs.zip, fte3.territory_short_name C_COUNTRY_SHORTNAME,
+       '(' || pvs.area_code || ') ' || pvs.phone, pvc.first_name,
+       pvc.last_name, '(' || pvc.area_code || ') ' || pvc.phone,
+       ph.attribute1, ph.attribute2, ph.attribute3, ph.attribute4,
+       ph.attribute5, ph.attribute6, ph.attribute7, ph.attribute8,
+       ph.attribute9, ph.attribute10, ph.attribute11, ph.attribute12,
+       ph.attribute13, ph.attribute14, ph.attribute15, ph.vendor_site_id,
+       ph.bill_to_location_id poh_bill_to_location, ph.ship_to_location_id  poh_ship_to_location, ph.po_header_id,
+       TO_NUMBER (NULL), DECODE (ph.approved_flag, 'Y', 'Y', 'N'),
+       pvs.LANGUAGE, ph.vendor_id, TO_DATE (NULL),
+       ph.consigned_consumption_flag,ph.attribute1 payment_terms,ph.attribute2 delivery_period,to_char(sysdate,'DD-MON-YYYY') DDATE
+  FROM po_lookup_codes plc1,
+       po_lookup_codes plc2,
+       fnd_currencies_tl fcc,
+       po_vendors vn,
+       po_vendor_sites_all pvs,
+       po_vendor_contacts pvc,
+       hr_employees hre,
+       per_people_f hre2,
+       ap_terms t,
+       po_headers_all ph,
+       po_headers_archive pha,
+       fnd_territories_tl fte3
+ WHERE NVL (ph.user_hold_flag, 'N') = 'N'
+  AND ph.segment1= :P_po_num_from
+   AND vn.vendor_id = ph.vendor_id
+   AND pvs.vendor_site_id = ph.vendor_site_id
+   AND ph.vendor_contact_id = pvc.vendor_contact_id(+)
+   AND hre.employee_id = ph.agent_id
+   AND hre2.person_id(+) = pha.agent_id
+   AND hre2.employee_number(+) IS NOT NULL
+   AND TRUNC (SYSDATE) BETWEEN hre2.effective_start_date(+) AND hre2.effective_end_date(+)
+   AND ph.terms_id = t.term_id(+)
+   AND ph.type_lookup_code IN ('STANDARD', 'BLANKET', 'CONTRACT', 'PLANNED')
+   AND ph.type_lookup_code = 'STANDARD'
+   AND ph.approved_flag = 'Y'
+   AND fcc.currency_code = ph.currency_code
+      AND fcc.LANGUAGE = USERENV ('LANG')
+   AND NVL (pha.revision_num, 0) = 0
+  -- AND ph.segment1 =:p_order_no
+   AND ph.po_header_id = pha.po_header_id(+)
+   AND plc1.lookup_code(+) = ph.fob_lookup_code
+   AND plc1.lookup_type(+) = 'FOB'
+   AND plc2.lookup_code(+) = ph.freight_terms_lookup_code
+   AND plc2.lookup_type(+) = 'FREIGHT TERMS'
+   AND pvs.country = fte3.territory_code(+)
+   AND DECODE (fte3.territory_code, NULL, '1', fte3.LANGUAGE) =
+                     DECODE (fte3.territory_code,
+                             NULL, '1',
+                             USERENV ('LANG')
+                            )

@@ -1,0 +1,20 @@
+DECLARE
+  c_short    gl_sets_of_books.short_name%TYPE;
+  c_currency gl_sets_of_books.currency_code%TYPE;
+  c_period   gl_sets_of_books.period_set_name%TYPE;
+
+  CURSOR C_gl_sets_of_books IS 
+    SELECT short_name, currency_code, period_set_name FROM gl_sets_of_books;
+
+BEGIN
+  OPEN C_gl_sets_of_books;
+  
+  LOOP
+    FETCH C_gl_sets_of_books INTO c_short, c_currency, c_period;
+    EXIT WHEN C_gl_sets_of_books%NOTFOUND;
+    -- Do something with the fetched values if needed
+  END LOOP;
+
+  CLOSE C_gl_sets_of_books;
+END;
+/

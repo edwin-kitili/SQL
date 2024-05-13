@@ -1,0 +1,5 @@
+steve_kuria_report
+applmgr / applmgr!24$
+/u01/oracle/VISION/apps/fs1/EBSapps/appl
+request group- MRC Programs AP
+application-Payables

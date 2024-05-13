@@ -1,0 +1,110 @@
+SELECT  pl1.line_num, pl1.item_description,NVL (mum.unit_of_measure_tl,  pl1.unit_meas_lookup_code ) C_Unit_Of_Measure,
+       DECODE (plt.order_type_lookup_code,'FIXED PRICE', TO_NUMBER (NULL), pl1.unit_price ) C_Unit_price,
+       DECODE (plt.order_type_lookup_code, 'QUANTITY', DECODE (ph1.type_lookup_code, 'STANDARD', pl1.quantity,'PLANNED', pl1.quantity, NULL ), NULL ) C_quantity,
+       DECODE (plt.order_type_lookup_code, 'QUANTITY', DECODE (ph1.type_lookup_code,'STANDARD', pl1.unit_price * pl1.quantity, 'PLANNED', pl1.unit_price * pl1.quantity,
+                     TO_NUMBER (NULL) ),  'AMOUNT', DECODE (ph1.type_lookup_code, 'STANDARD', pl1.unit_price * pl1.quantity, 'PLANNED', pl1.unit_price * pl1.quantity,
+                                 TO_NUMBER (NULL) ), 'RATE', DECODE (ph1.type_lookup_code, 'STANDARD', pl1.amount, TO_NUMBER (NULL) ),
+               'FIXED PRICE', DECODE (ph1.type_lookup_code,'STANDARD', pl1.amount, TO_NUMBER (NULL) ),TO_NUMBER (NULL) ) C_amount,
+               null C_AMOUNT_SUM,
+              code.segment1||'-'||code.segment2||'-'||code.segment3||'-'||code.segment4||'-'||code.segment5||'-'||code.segment6||'-'||code.segment7 Accounts,
+              zldf.INPUT_TAX_CLASSIFICATION_CODE TAX_RATE_CODE,
+              DECODE (zldf.INPUT_TAX_CLASSIFICATION_CODE,
+              'KFS EXC REC VAT 16', pd.recoverable_tax,
+              'KFS INC REC VAT 16', pd.recoverable_tax,
+              'KFS EXEMPT VAT', pd.recoverable_tax) tax_amt_tax_curr,
+              DECODE (zldf.INPUT_TAX_CLASSIFICATION_CODE,
+              'KFS EXC REC VAT 16', 'Vatable',
+              'KFS INC REC VAT 16',  'Vatable'
+              ) VAT_STATUS,
+             -- NVL (pd.recoverable_tax, 0) recoverable_tax,
+			   NVL (pl1.cancel_flag, 'N'),
+       pun.un_number || ' ' || pun.description, phc.hazard_class,
+       plt.order_type_lookup_code, pl1.contract_num,
+       ph2.quote_vendor_quote_number, pl2.line_num, pl1.attribute_category,
+       pl1.attribute1, pl1.attribute2, pl1.attribute3, pl1.attribute4,
+       pl1.attribute5, pl1.attribute6, pl1.attribute7, pl1.attribute8,
+       pl1.attribute9, pl1.attribute10, pl1.attribute11, pl1.attribute12,
+       pl1.attribute13, pl1.attribute14, pl1.attribute15, pl1.unit_price,
+       pl1.quantity, pl1.quantity_committed, pl1.po_header_id, pl1.po_line_id,
+       TO_NUMBER (NULL), pl1.item_id, ph2.segment1, ph2.global_agreement_flag,
+       pl1.from_header_id, pl1.from_line_id,
+	    pl1.vendor_product_num, pl1.note_to_vendor
+  FROM po_line_types plt,
+       po_headers_all ph2,
+       po_lines_all pl2,
+       po_headers_all ph1,
+       gl_code_combinations code,
+       po_lines_all pl1,
+       po_un_numbers pun,
+       ZX_LINES_DET_FACTORS zldf,
+       po_distributions_all pd,
+       po_line_locations_all pll,
+       po_hazard_classes phc,
+       mtl_units_of_measure mum
+ WHERE pl1.line_type_id = plt.line_type_id
+   AND pl1.po_header_id = ph1.po_header_id
+   --AND pl1.po_header_id = 1588614
+   --and trunc(pha.creation_date) > trunc(sysdate-20)
+   AND ph1.type_lookup_code IN ('STANDARD', 'PLANNED')
+   AND pl1.hazard_class_id = phc.hazard_class_id(+)
+   AND pl1.un_number_id = pun.un_number_id(+)
+   AND pl2.po_header_id = ph2.po_header_id(+)
+   AND pl1.from_line_id = pl2.po_line_id(+)
+   AND pl1.unit_meas_lookup_code = mum.unit_of_measure(+)
+   AND pd.line_location_id = pll.line_location_id
+   and pd.code_combination_id = code.code_combination_id
+   --AND pll.shipment_type IN ('STANDARD', 'PLANNED')
+   AND pl1.po_header_id = zldf.trx_id  
+   AND pll.line_location_id = zldf.trx_line_id
+   AND pll.po_line_id = pl1.po_line_id
+   UNION   
+select null line_num, tcb.NAME||' '||'on Line num'||' '||pl1b.line_num||' '||'@'||to_char(tcb.TAX_RATE)||'%' item_description,NULL C_Unit_Of_Measure, NULL C_Unit_price,
+       NULL C_quantity,
+       DECODE (pltb.order_type_lookup_code, 'QUANTITY', DECODE (ph1b.type_lookup_code,'STANDARD', pl1b.unit_price * pl1b.quantity, 'PLANNED', pl1b.unit_price * pl1b.quantity,
+                     TO_NUMBER (NULL) ),  'AMOUNT', DECODE (ph1b.type_lookup_code, 'STANDARD', pl1b.unit_price * pl1b.quantity, 'PLANNED', pl1b.unit_price * pl1b.quantity,
+                                 TO_NUMBER (NULL) ), 'RATE', DECODE (ph1b.type_lookup_code, 'STANDARD', pl1b.amount, TO_NUMBER (NULL) ),
+               'FIXED PRICE', DECODE (ph1b.type_lookup_code,'STANDARD', pl1b.amount, TO_NUMBER (NULL) ),TO_NUMBER (NULL) )* tcb.TAX_RATE/100 C_amount,
+                null TAX_RATE_CODE,
+               null tax_amt_tax_curr,
+               null Accounts,
+               null C_AMOUNT_SUM,
+               null VAT_STATUS,
+			   NVL (pl1b.cancel_flag, 'N'),
+       punb.un_number || ' ' || punb.description, phcb.hazard_class,
+       pltb.order_type_lookup_code, pl1b.contract_num,
+       ph2b.quote_vendor_quote_number, pl2b.line_num, pl1b.attribute_category,
+       pl1b.attribute1, pl1b.attribute2, pl1b.attribute3, pl1b.attribute4,
+       pl1b.attribute5, pl1b.attribute6, pl1b.attribute7, pl1b.attribute8,
+       pl1b.attribute9, pl1b.attribute10, pl1b.attribute11, pl1b.attribute12,
+       pl1b.attribute13, pl1b.attribute14, pl1b.attribute15, pl1b.unit_price,
+       pl1b.quantity, pl1b.quantity_committed, pl1b.po_header_id, pl1b.po_line_id,
+       TO_NUMBER (NULL), pl1b.item_id, ph2b.segment1, ph2b.global_agreement_flag,
+       pl1b.from_header_id, pl1b.from_line_id,
+	    pl1b.vendor_product_num, pl1b.note_to_vendor
+FROM po_line_types pltb,
+       po_headers_all ph2b,
+       po_lines_all pl2b,
+       po_headers_all ph1b,
+       po_lines_all pl1b,
+       --zx_lines zx,
+       po_un_numbers punb,
+       po_hazard_classes phcb,
+       mtl_units_of_measure mumb,
+	   po_line_locations_all plb,
+	   AP_TAX_CODES_all tcb
+ WHERE pl1b.line_type_id = pltb.line_type_id
+   AND pl1b.po_header_id = ph1b.po_header_id
+   AND ph1b.type_lookup_code IN ('STANDARD', 'PLANNED')
+   AND pl1b.hazard_class_id = phcb.hazard_class_id(+)
+   AND pl1b.un_number_id = punb.un_number_id(+)
+   --AND pl1b.po_header_id = 1588614
+   --and trunc(pha.creation_date) > trunc(sysdate-20)
+   --AND ph2b.po_header_id = zx.trx_id
+   --and plb.line_location_id = zx.trx_line_id
+   AND pl2b.po_header_id = ph2b.po_header_id(+)
+   AND pl1b.from_line_id = pl2b.po_line_id(+)
+   AND pl1b.unit_meas_lookup_code = mumb.unit_of_measure(+)
+   AND pl1b.po_line_id = plb.po_line_id
+   AND plb.TAX_CODE_ID = tcb.TAX_ID
+   AND plb.TAXABLE_FLAG = 'Y'
+   order by 1, 2;

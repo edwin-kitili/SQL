@@ -1,0 +1,25 @@
+REPORT CUSTOMIZATION
+- -making changes on an existing report
+Starting from the end or top going to the front or satart of report creation.
+1. You need to get the short name of the program
+APPLICATION DEV> CONCURRENT>PROGRAM>DEFINE
+Querry the program and copy the short name
+2.EXECUTABLE FILE NAME
+PROGRAM>CONCREENT>EXECUTABLE
+3.Go to server and navigate to the application top 
+APPLICATION DEV>REG and get the application top name
+4. Open WINSCP and paste the copied name to the application top
+navigate tou01>oracle>VISION>apps>fs1>ebsapps>appl> AR>REPORT>US
+SELECT THE EXECUTION FILE NAME-
+CTRL F-FIND FILE
+5.Create a folder in your machine and download the file from WINSCP
+6. Open the report builder- to get the querry
+   open an existing file
+   right click on data models and get the querry
+7. Copy the code to sql developer
+
+8. Dont edit any column retrieved from the group.
+9. Do backup in WINSCP
+   DONT REPLACE AN EXISTING FILE   
+   
+

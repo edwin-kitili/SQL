@@ -1,0 +1,4 @@
+select po.po_header_id, code.segment1||'-'||code.segment2||'-'||code.segment3||'-'||code.segment4||'-'||code.segment5||'-'||code.segment6||'-'||code.segment7 Accounts
+from po_distributions_all po, gl_code_combinations code
+where po.code_combination_id = code.code_combination_id
+order by po.po_line_id;
